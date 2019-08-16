@@ -10,6 +10,7 @@ import de.ph1b.audiobook.misc.formatTime
 import de.ph1b.audiobook.misc.recyclerComponent.AdapterComponent
 import de.ph1b.audiobook.uitools.ExtensionsHolder
 import kotlinx.android.synthetic.main.book_overview_row_list.*
+import timber.log.Timber
 
 class GridBookOverviewComponent(private val listener: BookClickListener) :
   AdapterComponent<BookOverviewModel, BookOverviewHolder>(BookOverviewModel::class) {
@@ -91,8 +92,22 @@ class BookOverviewHolder(
       title.maxLines = 2
     } else {
       author.text = model.author
-      author.isVisible = model.author != null
-      title.maxLines = if (model.author == null) 2 else 1
+      var fileName = model.book.content.currentFile.name
+      var fileNameUpper = model.book.content.currentFile.name.toUpperCase()
+
+      var authorTextUpper = model.author?.toUpperCase()
+      var locAuthor = fileNameUpper.indexOf(authorTextUpper.toString())
+      var titleTextUpper = model.name.toUpperCase()
+      var locTitle = fileNameUpper.indexOf(titleTextUpper.toString())
+      if (locAuthor > -1) {
+        fileName = fileName.substring(locAuthor + (authorTextUpper?.length ?: 0)).trim()
+      } else if (locTitle > -1) {
+        fileName = fileName.substring(locTitle + titleTextUpper.length).trim()
+      }
+
+      author.text = fileName
+      author.isVisible = fileName != null
+      title.maxLines = if (fileName == null) 2 else 1
     }
 
     cover.transitionName = model.transitionName
